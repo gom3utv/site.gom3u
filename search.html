@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search Playlists — GoM3U</title>
+<meta name="description" content="Search GoM3U playlists by title or category.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://your-domain.example/search.html">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111122">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="icon" href="assets/icons/favicon.png">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" id="siteHeader">
+  <div class="header-inner container">
+    <a href="index.html" class="logo" aria-label="GoM3U home">Go<span class="logo-accent">M3U</span></a>
+    <div class="header-actions">
+      <button class="icon-btn menu-btn" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="mobile-menu" id="mobileMenu" hidden aria-label="Mobile menu">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#playlists">Playlists</a></li>
+    <li><a href="search.html">Search</a></li>
+    <li><a href="#" target="_blank" rel="noopener">Telegram</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<main id="main" class="container">
+  <section class="search-page">
+    <h1>Search Playlists</h1>
+    <form id="searchForm" class="search-form" role="search">
+      <input type="search" id="searchInput" name="q" placeholder="Search by title or category…" autocomplete="off" aria-label="Search playlists">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <p class="search-status" id="searchStatus" hidden></p>
+
+    <div class="card-grid" id="searchGrid"></div>
+    <p class="empty-state" id="searchEmpty" hidden>No results found.</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="logo">Go<span class="logo-accent">M3U</span></span>
+      <p>Your playlist resource hub.</p>
+    </div>
+    <div class="footer-social">
+      <a href="#" target="_blank" rel="noopener">Telegram</a>
+      <a href="#" target="_blank" rel="noopener">Facebook</a>
+      <a href="#" target="_blank" rel="noopener">YouTube</a>
+    </div>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Use</a>
+    </div>
+  </div>
+  <p class="footer-copy">© 2026 GoM3U. All rights reserved.</p>
+</footer>
+
+<script src="js/utils.js"></script>
+<script src="js/app.js"></script>
+<script type="module" src="js/search.js"></script>
+</body>
+</html>
