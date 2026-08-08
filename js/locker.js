@@ -25,7 +25,11 @@ const DEFAULT_THUMBNAIL = "assets/default-thumbnail.png";
 const postId = getQueryParam("id");
 
 let post = null;
-let state = { step1: false, step2: false, unlocked: false, viewCounted: false, unlockCounted: false };
+let state = {
+  step1: false, step2: false, unlocked: false,
+  viewCounted: false, unlockCounted: false,
+  step1StartedAt: null, step2StartedAt: null
+};
 let countdownInterval = null;
 
 document.addEventListener("DOMContentLoaded", init);
@@ -127,10 +131,58 @@ function wireSteps() {
 }
 
 function restoreStateUI() {
-  if (state.step1) setStepDone(1);
-  if (state.step2) setStepDone(2);
+  const duration = Number(post.verifyTime) || 20;
+
+  [1, 2].forEach((n) => {
+    if (state[`step${n}`]) {
+      setStepDone(n);
+      return;
+    }
+    const startedAt = state[`step${n}StartedAt`];
+    if (!startedAt) return; // never started — leave at default pending/locked UI
+
+    const elapsedSeconds = (Date.now() - startedAt) / 1000;
+    if (elapsedSeconds >= duration) {
+      // Enough real time passed even though the page reloaded mid-countdown
+      // (e.g. an ad redirected the same tab and the user pressed Back) —
+      // honor it instead of forcing them to wait through the ad again.
+      completeStep(n);
+    } else {
+      resumeStep(n, duration - elapsedSeconds);
+    }
+  });
+
   if (state.step1 && state.step2) enableUnlock();
   if (state.unlocked) revealLink();
+}
+
+/**
+ * Continues an in-progress countdown after a page reload, using the
+ * remaining seconds computed from the real elapsed time (not a fresh
+ * full countdown).
+ */
+function resumeStep(stepNumber, remainingSeconds) {
+  const btn = document.getElementById(`step${stepNumber}Btn`);
+  const stepEl = document.getElementById(`step${stepNumber}`);
+  if (stepNumber === 2 && !state.step1) return; // step 2 shouldn't be active before step 1 finishes
+
+  stepEl.dataset.state = "active";
+  btn.disabled = true;
+  let remaining = Math.ceil(remainingSeconds);
+  updateTimerLabel(btn, remaining);
+
+  const startedAt = state[`step${stepNumber}StartedAt`];
+  const duration = Number(post.verifyTime) || 20;
+  const interval = window.setInterval(() => {
+    const elapsed = (Date.now() - startedAt) / 1000;
+    remaining = Math.ceil(duration - elapsed);
+    if (remaining <= 0) {
+      window.clearInterval(interval);
+      completeStep(stepNumber);
+      return;
+    }
+    updateTimerLabel(btn, remaining);
+  }, 1000);
 }
 
 function startStep(stepNumber) {
@@ -139,15 +191,19 @@ function startStep(stepNumber) {
   const btn = document.getElementById(`step${stepNumber}Btn`);
   const stepEl = document.getElementById(`step${stepNumber}`);
 
+  const startedAt = Date.now();
+  state[`step${stepNumber}StartedAt`] = startedAt;
+  saveState(postId, state);
+
   window.open(adUrl, "_blank", "noopener");
 
   stepEl.dataset.state = "active";
   btn.disabled = true;
-  let remaining = duration;
-  updateTimerLabel(btn, remaining);
+  updateTimerLabel(btn, duration);
 
   countdownInterval = setInterval(() => {
-    remaining -= 1;
+    const elapsed = (Date.now() - startedAt) / 1000;
+    const remaining = Math.ceil(duration - elapsed);
     if (remaining <= 0) {
       clearInterval(countdownInterval);
       completeStep(stepNumber);
@@ -268,4 +324,4 @@ function saveState(id, value) {
     // sessionStorage unavailable (private browsing etc.) — degrade silently,
     // duplicate protection just won't persist across a refresh.
   }
-}
+                  }
