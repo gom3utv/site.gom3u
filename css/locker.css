@@ -1,0 +1,115 @@
+/* ===============================
+   LOCKER PAGE STYLES
+   Loaded after style.css/responsive.css — reuses :root design tokens.
+=============================== */
+
+.locker-main { max-width: 640px; padding-top: var(--space-5); padding-bottom: var(--space-6); }
+
+.locker-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.locker-card .thumb {
+  height: 200px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+  background: var(--dark);
+}
+.locker-card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.locker-card h1 { font-size: 22px; margin: var(--space-2) 0 var(--space-2); color: var(--dark); }
+.locker-desc { color: var(--muted); font-size: 14px; margin: 0 0 var(--space-3); }
+
+.post-notice {
+  background: rgba(108, 99, 255, 0.08);
+  color: var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: var(--space-4);
+}
+
+/* ===============================
+   VERIFICATION STEPS
+=============================== */
+.verify-steps { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
+
+.verify-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.step-info { display: flex; align-items: center; gap: 12px; }
+.step-number {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+.step-label { font-size: 14px; font-weight: 500; }
+.step-timer {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  min-width: 3ch;
+  text-align: right;
+}
+
+.verify-step[data-state="locked"] { opacity: 0.55; }
+.verify-step[data-state="active"] { border-color: var(--primary); background: rgba(108, 99, 255, 0.04); }
+.verify-step[data-state="active"] .step-number { background: var(--primary); color: #fff; }
+.verify-step[data-state="done"] { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+.verify-step[data-state="done"] .step-number { background: var(--success); color: #fff; }
+.verify-step[data-state="done"] .step-number::after { content: "✓"; }
+
+.unlock-btn { width: 100%; }
+
+/* ===============================
+   UNLOCKED LINK
+=============================== */
+.unlocked-box {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--success);
+  background: rgba(16, 185, 129, 0.06);
+  border-radius: var(--radius-md);
+}
+.unlocked-link-row { display: flex; gap: 8px; margin: var(--space-2) 0 var(--space-3); }
+.unlocked-link-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ===============================
+   ERROR STATE
+=============================== */
+.error-title { font-size: 18px; font-weight: 600; margin-bottom: var(--space-2); }
+
+@media (max-width: 480px) {
+  .verify-step { flex-direction: row; align-items: center; }
+  .unlocked-link-row { flex-direction: column; }
+}
