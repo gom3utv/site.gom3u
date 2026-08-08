@@ -89,19 +89,65 @@ function initNoticeBar() {
 // Never claim 100% detection accuracy (see §27).
 // ===============================
 function initAdblockDetection() {
-  const bait = document.createElement('div');
-  bait.className = 'ad ads adsbox adsbygoogle ad-banner';
-  bait.style.cssText = 'position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;';
-  document.body.appendChild(bait);
+  Promise.all([checkBaitElement(), checkAdNetworkRequest()]).then(([baitBlocked, networkBlocked]) => {
+    if (baitBlocked || networkBlocked) showAdblockModal();
+  });
+}
 
-  window.setTimeout(() => {
-    const blocked = bait.offsetParent === null
-      || bait.offsetHeight === 0
-      || getComputedStyle(bait).display === 'none'
-      || getComputedStyle(bait).visibility === 'hidden';
-    bait.remove();
-    if (blocked) showAdblockModal();
-  }, 200);
+/**
+ * Method 1: a hidden div with classic ad-related class names. Only
+ * catches blockers whose filter lists include cosmetic (CSS-hiding)
+ * rules for these exact class names — many modern blockers (Brave
+ * Shields, DNS-level blockers) don't work this way, so this alone is
+ * NOT enough. Kept as one signal among two.
+ */
+function checkBaitElement() {
+  return new Promise((resolve) => {
+    const bait = document.createElement('div');
+    bait.className = 'ad ads adsbox adsbygoogle ad-banner adunit advertisement';
+    bait.style.cssText = 'position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;';
+    document.body.appendChild(bait);
+
+    window.setTimeout(() => {
+      const blocked = bait.offsetParent === null
+        || bait.offsetHeight === 0
+        || getComputedStyle(bait).display === 'none'
+        || getComputedStyle(bait).visibility === 'hidden';
+      bait.remove();
+      resolve(blocked);
+    }, 200);
+  });
+}
+
+/**
+ * Method 2: try to reach a well-known ad-serving domain. Extension-based
+ * blockers (uBlock Origin, AdGuard, Brave Shields) block the request at
+ * the network layer; DNS-level blockers (Pi-hole, AdGuard DNS, NextDNS)
+ * block it by failing DNS resolution for that domain — both surface as
+ * a rejected fetch(), so this single check catches both categories.
+ * mode:'no-cors' means we can't read the response, only whether the
+ * request succeeded or was blocked/failed outright.
+ */
+function checkAdNetworkRequest() {
+  return new Promise((resolve) => {
+    // If the device itself has no internet connection, a failed request
+    // here means "offline", not "ad blocker" — skip this check rather
+    // than showing a misleading modal.
+    if (!navigator.onLine) {
+      resolve(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 1500);
+
+    fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+      mode: 'no-cors',
+      signal: controller.signal
+    })
+      .then(() => { window.clearTimeout(timeout); resolve(false); })
+      .catch(() => { window.clearTimeout(timeout); resolve(true); });
+  });
 }
 
 function showAdblockModal() {
