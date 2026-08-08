@@ -20,12 +20,12 @@
 //   js/firebase.js imports this exact name.
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDAYDA-MNJcMf6HtiRDGqgmusQFGOSRnlk",
-  authDomain: "gom3u-6f666.firebaseapp.com",
-  projectId: "gom3u-6f666",
-  storageBucket: "gom3u-6f666.firebasestorage.app",
-  messagingSenderId: "609608769304",
-  appId: "1:609608769304:web:f508949d5d0dcf526dc86d",
-  measurementId: "G-SWY572X6N3"
+  apiKey: "AIzaSyCzXmlbhRljbYmC1TBrUMy6s7apVVM3A7I",
+  authDomain: "gom3ubd.firebaseapp.com",
+  projectId: "gom3ubd",
+  storageBucket: "gom3ubd.firebasestorage.app",
+  messagingSenderId: "691951210844",
+  appId: "1:691951210844:web:13099600c11cfe80b0b199",
+  measurementId: "G-QWMR1VVT9M"
 };
 export default firebaseConfig;
