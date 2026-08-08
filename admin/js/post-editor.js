@@ -3,23 +3,22 @@
 // Handles both creating a new post and editing an existing one
 // (edit mode is detected via ?id=POST_ID in the URL, same pattern as
 // locker.html?id=POST_ID on the public site).
+//
+// THUMBNAILS: this version uses a pasted external image URL (e.g. from
+// imgbb.com or postimages.org) instead of uploading to Firebase Storage.
+// Firebase Storage now requires the paid Blaze plan even for small
+// projects, so this keeps the whole project usable on the free Spark
+// plan. If you later move to Blaze and want direct uploads again, swap
+// this back to Firebase Storage's uploadBytes()/getDownloadURL().
 // ===============================
 
 import { initAdminPage } from "./admin-common.js";
-import { db, storage } from "../../js/firebase.js";
+import { db } from "../../js/firebase.js";
 import {
   doc, getDoc, setDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import {
-  ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
-
-const MAX_THUMB_BYTES = 2 * 1024 * 1024; // 2MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 let postId = getQueryParam("id"); // null = creating a new post
-let selectedFile = null;
-let existingThumbnailUrl = "";
 
 initAdminPage(() => {
   if (postId) {
@@ -50,17 +49,11 @@ async function loadExistingPost(id) {
     document.getElementById("status").value = post.status || "draft";
     document.getElementById("sortOrder").value = post.sortOrder || 0;
 
-    if (post.thumbnailUrl) {
-      existingThumbnailUrl = post.thumbnailUrl;
-      // Older posts may have a broken relative default-thumbnail path baked
-      // into the field (a fixed bug) — treat that as "no thumbnail" so the
-      // next save clears it, letting each page's own correct fallback path
-      // take over instead of a saved path that only worked inside /admin/.
-      if (existingThumbnailUrl.includes("default-thumbnail.png")) {
-        existingThumbnailUrl = "";
-      } else {
-        document.getElementById("thumbPreview").src = post.thumbnailUrl;
-      }
+    // Skip any old broken relative default-thumbnail path baked in by a
+    // previous version of this file — treat it as "no thumbnail set".
+    if (post.thumbnailUrl && !post.thumbnailUrl.includes("default-thumbnail.png")) {
+      document.getElementById("thumbnailUrl").value = post.thumbnailUrl;
+      document.getElementById("thumbPreview").src = post.thumbnailUrl;
     }
 
     const statsDisplay = document.getElementById("statsDisplay");
@@ -76,30 +69,27 @@ async function loadExistingPost(id) {
 }
 
 function wireThumbnailInput() {
-  const input = document.getElementById("thumbInput");
+  const urlInput = document.getElementById("thumbnailUrl");
   const preview = document.getElementById("thumbPreview");
   const errorEl = document.getElementById("thumbError");
+  const defaultSrc = "../assets/default-thumbnail.png";
 
-  input.addEventListener("change", () => {
+  urlInput.addEventListener("input", () => {
     errorEl.hidden = true;
-    const file = input.files[0];
-    if (!file) return;
-
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      errorEl.textContent = "Please choose a JPG, PNG, or WEBP image.";
-      errorEl.hidden = false;
-      input.value = "";
+    const value = urlInput.value.trim();
+    if (!value) {
+      preview.src = defaultSrc;
       return;
     }
-    if (file.size > MAX_THUMB_BYTES) {
-      errorEl.textContent = "Image must be under 2MB.";
-      errorEl.hidden = false;
-      input.value = "";
-      return;
-    }
+    preview.src = value;
+  });
 
-    selectedFile = file;
-    preview.src = URL.createObjectURL(file); // local preview before upload
+  preview.addEventListener("error", () => {
+    if (urlInput.value.trim()) {
+      errorEl.textContent = "Couldn't load an image from that URL — double check the link.";
+      errorEl.hidden = false;
+    }
+    preview.src = defaultSrc;
   });
 }
 
@@ -112,9 +102,14 @@ function wireForm() {
     const realLink = document.getElementById("realLink").value.trim();
     const adUrl1 = document.getElementById("adUrl1").value.trim();
     const adUrl2 = document.getElementById("adUrl2").value.trim();
+    const thumbnailUrl = document.getElementById("thumbnailUrl").value.trim();
 
     if (!isValidURL(realLink) || !isValidURL(adUrl1) || !isValidURL(adUrl2)) {
       showToast("Please enter valid http(s):// links for all URL fields.", "error");
+      return;
+    }
+    if (thumbnailUrl && !isValidURL(thumbnailUrl)) {
+      showToast("Thumbnail URL doesn't look valid — leave it blank or fix the link.", "error");
       return;
     }
 
@@ -124,29 +119,20 @@ function wireForm() {
 
     try {
       const id = postId || doc(db, "posts", crypto.randomUUID()).id;
-      let thumbnailUrl = existingThumbnailUrl || "";
-
-      if (selectedFile) {
-        thumbnailUrl = await uploadThumbnail(id, selectedFile);
-      }
 
       const data = {
         title: document.getElementById("title").value.trim(),
         description: document.getElementById("description").value.trim(),
         category: document.getElementById("category").value.trim(),
-        realLink: document.getElementById("realLink").value.trim(),
-        adUrl1: document.getElementById("adUrl1").value.trim(),
-        adUrl2: document.getElementById("adUrl2").value.trim(),
+        realLink,
+        adUrl1,
+        adUrl2,
         verifyTime: Number(document.getElementById("verifyTime").value) || 20,
         notice: document.getElementById("notice").value.trim(),
         status: document.getElementById("status").value,
         sortOrder: Number(document.getElementById("sortOrder").value) || 0,
-        // Save whatever was uploaded, or an empty string if none — never a
-        // hardcoded fallback path. Each page (home.js, posts.js, locker.js,
-        // search.js) already applies its own correctly-scoped default
-        // thumbnail path when thumbnailUrl is empty, so a value baked in
-        // here would only be correct from inside /admin/ and break
-        // everywhere else.
+        // Empty string when left blank — every page applies its own
+        // correctly-scoped default thumbnail path when this is empty.
         thumbnailUrl: thumbnailUrl,
         updatedAt: serverTimestamp()
       };
@@ -167,14 +153,4 @@ function wireForm() {
       saveBtn.textContent = "Save Post";
     }
   });
-}
-
-/**
- * Uploads a thumbnail to /thumbnails/{postId}/image and returns its
- * public download URL. Matches the Storage path used in storage.rules.
- */
-async function uploadThumbnail(id, file) {
-  const fileRef = ref(storage, `thumbnails/${id}/image`);
-  await uploadBytes(fileRef, file, { contentType: file.type });
-  return await getDownloadURL(fileRef);
 }
