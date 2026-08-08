@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Settings — GoM3U Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <a href="../index.html" class="logo">Go<span class="logo-accent">M3U</span></a>
+    <nav class="admin-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="posts.html">Posts</a>
+      <a href="post-editor.html">Add Post</a>
+      <a href="settings.html" class="active">Settings</a>
+      <button class="logout-link" id="logoutBtn">Logout</button>
+    </nav>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="icon-btn admin-sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1>Settings</h1>
+      </div>
+    </header>
+
+    <div class="admin-content">
+      <form id="settingsForm">
+
+        <div class="admin-panel">
+          <h2>Notice Bar</h2>
+          <div class="form-field">
+            <label for="noticeText">Notice Text</label>
+            <input type="text" id="noticeText" maxlength="140">
+          </div>
+          <div class="form-field">
+            <label><input type="checkbox" id="noticeEnabled"> Notice enabled</label>
+          </div>
+          <div class="form-field">
+            <label><input type="checkbox" id="noticeAnimation"> Scrolling animation enabled</label>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <h2>Branding</h2>
+          <div class="form-field">
+            <label for="siteName">Site Name</label>
+            <input type="text" id="siteName" maxlength="60">
+          </div>
+          <div class="form-field">
+            <label for="primaryColor">Primary Color</label>
+            <input type="color" id="primaryColor" style="width:70px;padding:2px;">
+          </div>
+          <div class="form-field">
+            <label for="heroTitle">Hero Title</label>
+            <input type="text" id="heroTitle" maxlength="80">
+          </div>
+          <div class="form-field">
+            <label for="heroSubtitle">Hero Subtitle</label>
+            <input type="text" id="heroSubtitle" maxlength="160">
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <h2>Social Links</h2>
+          <div class="form-field">
+            <label for="telegramUrl">Telegram URL</label>
+            <input type="url" id="telegramUrl" placeholder="https://t.me/…">
+          </div>
+          <div class="form-field">
+            <label for="facebookUrl">Facebook URL</label>
+            <input type="url" id="facebookUrl" placeholder="https://facebook.com/…">
+          </div>
+          <div class="form-field">
+            <label for="youtubeUrl">YouTube URL</label>
+            <input type="url" id="youtubeUrl" placeholder="https://youtube.com/…">
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <h2>Footer</h2>
+          <div class="form-field">
+            <label for="footerText">Footer Text</label>
+            <input type="text" id="footerText" maxlength="120">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="saveSettingsBtn">Save Settings</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="../js/utils.js"></script>
+<script type="module" src="js/settings.js"></script>
+</body>
+</html>
