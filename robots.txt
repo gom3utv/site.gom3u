@@ -1,0 +1,11 @@
+# ===============================
+# ROBOTS.TXT
+# WHAT TO EDIT: change the Sitemap URL below once you know your real
+# deployed domain. Everything else can stay as-is.
+# ===============================
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://your-domain.example/sitemap.xml
