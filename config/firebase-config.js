@@ -25,8 +25,8 @@ const firebaseConfig = {
   projectId: "gom3uhub-35a9a",
   storageBucket: "gom3uhub-35a9a.firebasestorage.app",
   messagingSenderId: "902152871",
-  appId: "1:902152871:web:4aa18ca336ef9929fdd182",
-  measurementId: "G-DGRTX02B5V"
+  appId: "1:902152871:web:856c00451883c0d8fdd182",
+  measurementId: "G-0JM3ZGE33G"
 };
 
 export default firebaseConfig;
