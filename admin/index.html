@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin Login — GoM3U</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-login">
+  <div class="admin-login-card">
+    <a href="../index.html" class="logo">Go<span class="logo-accent">M3U</span></a>
+    <p class="sub">Admin panel — authorized access only</p>
+
+    <!-- WHAT TO EDIT: nothing here. Admin accounts are created in the
+         Firebase Console, not through this form (see §31). -->
+    <form id="loginForm" novalidate>
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="username" required>
+      </div>
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+      </div>
+      <p class="form-error" id="loginError" hidden></p>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;" id="loginBtn">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+  import { loginAdmin, isUserAdmin } from "../js/auth.js";
+  import { auth } from "../js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  // If already signed in as an admin, skip straight to the dashboard.
+  onAuthStateChanged(auth, async (user) => {
+    if (user && await isUserAdmin(user.uid)) {
+      window.location.href = "dashboard.html";
+    }
+  });
+
+  const form = document.getElementById("loginForm");
+  const errorEl = document.getElementById("loginError");
+  const loginBtn = document.getElementById("loginBtn");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorEl.hidden = true;
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing in…";
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const result = await loginAdmin(email, password);
+
+    if (result.ok) {
+      window.location.href = "dashboard.html";
+    } else {
+      errorEl.textContent = result.message;
+      errorEl.hidden = false;
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Sign In";
+    }
+  });
+</script>
+</body>
+</html>
