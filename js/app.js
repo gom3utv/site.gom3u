@@ -74,10 +74,9 @@ function initSearchToggle() {
 function initNoticeBar() {
   const noticeBar = document.getElementById('noticeBar');
   if (!noticeBar) return;
-  // Placeholder for future settings-driven show/hide + animation toggle.
-  // Example (added in Phase 3):
-  //   if (!settings.noticeEnabled) noticeBar.hidden = true;
-  //   if (!settings.noticeAnimation) noticeBar.classList.add('no-animation');
+  // Text/visibility/animation are applied by js/settings-loader.js once
+  // settings/site loads from Firestore. This function just ensures the
+  // static HTML placeholder is visible by default before that happens.
 }
 
 // ===============================
