@@ -16,7 +16,6 @@ import {
 
 const MAX_THUMB_BYTES = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const DEFAULT_THUMBNAIL = "../assets/default-thumbnail.png";
 
 let postId = getQueryParam("id"); // null = creating a new post
 let selectedFile = null;
@@ -53,7 +52,22 @@ async function loadExistingPost(id) {
 
     if (post.thumbnailUrl) {
       existingThumbnailUrl = post.thumbnailUrl;
-      document.getElementById("thumbPreview").src = post.thumbnailUrl;
+      // Older posts may have a broken relative default-thumbnail path baked
+      // into the field (a fixed bug) — treat that as "no thumbnail" so the
+      // next save clears it, letting each page's own correct fallback path
+      // take over instead of a saved path that only worked inside /admin/.
+      if (existingThumbnailUrl.includes("default-thumbnail.png")) {
+        existingThumbnailUrl = "";
+      } else {
+        document.getElementById("thumbPreview").src = post.thumbnailUrl;
+      }
+    }
+
+    const statsDisplay = document.getElementById("statsDisplay");
+    if (statsDisplay) {
+      document.getElementById("statViews").textContent = post.viewCount || 0;
+      document.getElementById("statUnlocks").textContent = post.unlockCount || 0;
+      statsDisplay.hidden = false;
     }
   } catch (err) {
     console.error("Failed to load post:", err);
@@ -127,7 +141,13 @@ function wireForm() {
         notice: document.getElementById("notice").value.trim(),
         status: document.getElementById("status").value,
         sortOrder: Number(document.getElementById("sortOrder").value) || 0,
-        thumbnailUrl: thumbnailUrl || DEFAULT_THUMBNAIL,
+        // Save whatever was uploaded, or an empty string if none — never a
+        // hardcoded fallback path. Each page (home.js, posts.js, locker.js,
+        // search.js) already applies its own correctly-scoped default
+        // thumbnail path when thumbnailUrl is empty, so a value baked in
+        // here would only be correct from inside /admin/ and break
+        // everywhere else.
+        thumbnailUrl: thumbnailUrl,
         updatedAt: serverTimestamp()
       };
 
