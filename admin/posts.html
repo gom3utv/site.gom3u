@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Posts — GoM3U Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <a href="../index.html" class="logo">Go<span class="logo-accent">M3U</span></a>
+    <nav class="admin-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="posts.html" class="active">Posts</a>
+      <a href="post-editor.html">Add Post</a>
+      <a href="settings.html">Settings</a>
+      <button class="logout-link" id="logoutBtn">Logout</button>
+    </nav>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="icon-btn admin-sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1>Posts</h1>
+      </div>
+      <a href="post-editor.html" class="btn btn-primary btn-sm">+ Add Post</a>
+    </header>
+
+    <div class="admin-content">
+      <div class="admin-panel">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Thumb</th><th>Title</th><th>Category</th><th>Status</th>
+                <th>Unlocks</th><th>Created</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="postsBody">
+              <tr><td colspan="7" class="form-hint">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="empty-state" id="postsEmpty" hidden>No posts yet — create your first one.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirmation dialog (§52) -->
+<div class="modal-overlay" id="deleteModal" hidden role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+  <div class="modal-box">
+    <h3 id="deleteModalTitle">Delete this post?</h3>
+    <p>Are you sure you want to delete this post? This can't be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="cancelDeleteBtn">Cancel</button>
+      <button class="btn btn-primary" style="background:var(--danger);" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/utils.js"></script>
+<script type="module" src="js/posts.js"></script>
+</body>
+</html>
