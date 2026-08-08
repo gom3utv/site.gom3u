@@ -1,0 +1,103 @@
+// ===============================
+// FIRESTORE SECURITY RULES
+// Deploy with: firebase deploy --only firestore:rules
+//
+// WHAT TO EDIT: nothing normally — these match the exact Firestore reads
+// and writes used by js/home.js, js/search.js, js/locker.js, and every
+// admin/js/*.js file. If you rename a collection or field in the app
+// code, update the matching rule here too, or that operation will start
+// failing with "permission-denied".
+//
+// WHAT NOT TO EDIT INTO: never change any "allow ... : if true" broadly —
+// that would make the collection publicly writable.
+// ===============================
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Helper: is the signed-in user an admin? ----
+    // Checked by looking for a matching document at admins/{uid}.
+    // Admin documents are created manually via the setup guide (§31) —
+    // there is no public admin-registration flow.
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // ---- SITE SETTINGS ----
+    // Public read (homepage/locker read notice text, social links, hero
+    // copy). Only admins can change them.
+    match /settings/site {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---- POSTS ----
+    // Public can read only active posts (drafts/disabled stay hidden).
+    // Admins can read everything, including drafts, for the admin table.
+    // Public visitors may ALSO bump exactly one counter field at a time
+    // (viewCount or unlockCount) by exactly +1 — this is what
+    // js/locker.js's increment() calls rely on. Nothing else about a
+    // post can be changed without being an admin.
+    match /posts/{postId} {
+      allow read: if (resource.data.status == 'active') || isAdmin();
+
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+
+      allow update: if isAdmin()
+        || isSingleCounterBump('viewCount')
+        || isSingleCounterBump('unlockCount');
+
+      function isSingleCounterBump(field) {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly([field])
+          && request.resource.data[field] == resource.data[field] + 1;
+      }
+    }
+
+    // ---- ADMINS ----
+    // A signed-in user may check ONLY their own admin doc (used by
+    // js/auth.js to decide whether to grant panel access). Nobody can
+    // write here from the client — manage admins via the Firebase Console
+    // or the Firestore tab directly (§31).
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // ---- GLOBAL STATS ----
+    // Public visitors may create/update this doc, but ONLY the
+    // totalViews/totalUnlocks/updatedAt fields, matching the exact
+    // shape js/locker.js writes with setDoc(..., merge: true).
+    match /stats/global {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() || onlyStatFields();
+
+      function onlyStatFields() {
+        return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['totalViews', 'totalUnlocks', 'updatedAt']);
+      }
+    }
+
+    // ---- DAILY STATS ----
+    // One doc per day, e.g. stats_daily/2026-08-08. Same idea as above:
+    // public write access is limited to the views/unlocks/date fields.
+    match /stats_daily/{dateId} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() || onlyDailyFields();
+
+      function onlyDailyFields() {
+        return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['views', 'unlocks', 'date']);
+      }
+    }
+
+    // ---- CATCH-ALL ----
+    // Anything not explicitly matched above is locked down completely.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
