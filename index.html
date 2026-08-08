@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoM3U — Playlist Resource Hub</title>
+<meta name="description" content="GoM3U is a resource hub for finding and organizing M3U playlist links, updated regularly and easy to access from any device.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://your-domain.example/">
+
+<!-- ===============================
+     OPEN GRAPH / TWITTER CARD
+     WHAT TO EDIT: swap your-domain.example for your real deployed
+     domain, and og:image for a real 1200x630 banner once you have one.
+=============================== -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GoM3U">
+<meta property="og:title" content="GoM3U — Playlist Resource Hub">
+<meta property="og:description" content="Find and organize M3U playlist links in one place, updated regularly.">
+<meta property="og:url" content="https://your-domain.example/">
+<meta property="og:image" content="https://your-domain.example/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GoM3U — Playlist Resource Hub">
+<meta name="twitter:description" content="Find and organize M3U playlist links in one place, updated regularly.">
+<meta name="twitter:image" content="https://your-domain.example/assets/icons/icon-512.png">
+
+<!-- ===============================
+     PWA
+=============================== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111122">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+<!-- ===============================
+     STRUCTURED DATA (SEO §34)
+     WebSite + Organization. Keep this in sync if you rename the brand.
+=============================== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": "GoM3U",
+      "url": "https://your-domain.example/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://your-domain.example/search.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Organization",
+      "name": "GoM3U",
+      "url": "https://your-domain.example/"
+    }
+  ]
+}
+</script>
+
+<!-- ===============================
+     FONTS
+     Space Grotesk = headings/logo, Inter = body text, JetBrains Mono = counters/badges
+=============================== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+<!-- ===============================
+     STYLES
+     style.css   = design system + layout
+     responsive.css = breakpoint overrides
+=============================== -->
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+
+<link rel="icon" href="assets/icons/favicon.png">
+</head>
+<body>
+
+<!-- ===============================
+     SKIP LINK (accessibility)
+=============================== -->
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ===============================
+     HEADER
+     Sticky. Logo left, search + menu right.
+     Do NOT add extra nav items here — use the mobile menu / footer instead.
+=============================== -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner container">
+    <a href="/" class="logo" aria-label="GoM3U home">
+      Go<span class="logo-accent">M3U</span>
+    </a>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="searchToggle" aria-label="Open search" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn menu-btn" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Expandable search bar -->
+  <div class="search-bar" id="searchBar" hidden>
+    <div class="container">
+      <form action="search.html" method="get" role="search">
+        <input type="search" name="q" placeholder="Search playlists by title or category…" aria-label="Search playlists" autocomplete="off">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<!-- ===============================
+     MOBILE MENU
+     Hidden off-canvas panel. Toggled by menuToggle button.
+=============================== -->
+<nav class="mobile-menu" id="mobileMenu" hidden aria-label="Mobile menu">
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/#playlists">Playlists</a></li>
+    <li><a href="search.html">Search</a></li>
+    <li><a href="#" id="telegramLink" target="_blank" rel="noopener">Telegram</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<!-- ===============================
+     NOTICE BAR
+     Content + on/off state come from Admin Settings (settings/site) in Phase 2.
+     Placeholder text is used for now.
+=============================== -->
+<div class="notice-bar" id="noticeBar">
+  <div class="notice-track" id="noticeTrack">
+    <span>🔥 Latest GoM3U playlist updates are posted here — check back daily.</span>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- ===============================
+       HERO
+       Signature element: animated "signal" bars — a nod to tuning into a stream,
+       kept small and quiet so it doesn't overpower the copy.
+  =============================== -->
+  <section class="hero container">
+    <div class="hero-copy">
+      <p class="eyebrow">Playlist resource hub</p>
+      <h1>Find your next<br>M3U playlist, <span class="text-accent">organized.</span></h1>
+      <p class="hero-sub">A single place to browse updated playlist links, unlock them safely, and keep track of what's new — built for speed on any device.</p>
+      <a href="#playlists" class="btn btn-primary btn-lg">Browse Playlists</a>
+    </div>
+    <div class="hero-signal" aria-hidden="true">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </div>
+  </section>
+
+  <!-- ===============================
+       FEATURE CARDS
+  =============================== -->
+  <section class="features container">
+    <div class="feature-card">
+      <span class="feature-icon">⟳</span>
+      <h3>Updated Playlists</h3>
+      <p>Fresh links added regularly, sorted by category.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⚡</span>
+      <h3>Fast Access</h3>
+      <p>Lightweight pages that load quickly, even on slow connections.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">▤</span>
+      <h3>Mobile Friendly</h3>
+      <p>Every page is built mobile-first, from card to locker.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">✓</span>
+      <h3>Easy to Use</h3>
+      <p>Clear steps, no clutter, no guesswork.</p>
+    </div>
+  </section>
+
+  <!-- ===============================
+       PLAYLIST SECTION
+       Cards below are static placeholders for Phase 1.
+       In Phase 2 these are replaced with live Firestore data by js/home.js.
+  =============================== -->
+  <section class="playlists container" id="playlists">
+    <div class="section-heading">
+      <h2>Latest Playlists</h2>
+    </div>
+
+    <div class="card-grid" id="playlistGrid">
+      <!-- Populated at runtime by js/home.js from Firestore's "posts" collection. -->
+    </div>
+
+    <!-- Pagination / Load more — wired up in Phase 5 -->
+    <div class="pagination-controls" id="paginationControls">
+      <button class="btn btn-outline" id="loadMoreBtn">Load More</button>
+    </div>
+
+    <p class="empty-state" id="emptyState" hidden>No playlists available right now.</p>
+  </section>
+
+</main>
+
+<!-- ===============================
+     FOOTER
+=============================== -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="logo">Go<span class="logo-accent">M3U</span></span>
+      <p>Your playlist resource hub.</p>
+    </div>
+
+    <div class="footer-social">
+      <a href="#" id="footerTelegram" target="_blank" rel="noopener" aria-label="Telegram">Telegram</a>
+      <a href="#" id="footerFacebook" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a>
+      <a href="#" id="footerYoutube" target="_blank" rel="noopener" aria-label="YouTube">YouTube</a>
+    </div>
+
+    <div class="footer-links">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Use</a>
+    </div>
+  </div>
+  <p class="footer-copy">© 2026 GoM3U. All rights reserved.</p>
+</footer>
+
+<!-- ===============================
+     SCRIPTS
+     utils.js  = shared helper functions
+     app.js    = header, menu, notice bar, adblock detection (global, every page)
+     home.js   = homepage-only logic (Phase 2 connects this to Firestore)
+=============================== -->
+<script src="js/utils.js"></script>
+<script src="js/app.js"></script>
+<!-- type="module" is required here: home.js imports js/firebase.js -->
+<script type="module" src="js/home.js"></script>
+</body>
+</html>
