@@ -93,17 +93,32 @@
             <input type="number" id="sortOrder" value="0">
             <p class="form-hint">Lower numbers appear first on the homepage.</p>
           </div>
+
+          <div class="form-field" id="statsDisplay" hidden>
+            <label>Stats</label>
+            <p class="form-hint">Views: <span id="statViews">0</span> · Unlocks: <span id="statUnlocks">0</span></p>
+          </div>
         </div>
 
         <!-- Thumbnail -->
         <div class="admin-panel">
           <div class="form-field">
-            <label>Thumbnail</label>
-            <label class="thumb-upload" id="thumbUploadLabel">
+            <label>Thumbnail Preview</label>
+            <div class="thumb-upload" id="thumbPreviewBox" aria-hidden="true">
               <img id="thumbPreview" src="../assets/default-thumbnail.png" alt="Thumbnail preview">
-              <p class="form-hint">Click to upload — JPG, PNG or WEBP, up to 2MB</p>
-              <input type="file" id="thumbInput" accept="image/jpeg,image/png,image/webp">
-            </label>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="thumbnailUrl">Thumbnail URL</label>
+            <input type="url" id="thumbnailUrl" placeholder="https://i.ibb.co/…">
+            <p class="form-hint">
+              Paste a direct image link. Upload your image to a free host like
+              <a href="https://imgbb.com" target="_blank" rel="noopener">imgbb.com</a>
+              or <a href="https://postimages.org" target="_blank" rel="noopener">postimages.org</a>
+              first, then paste the "direct link" here — JPG, PNG, or WEBP.
+              Leave blank to use the default thumbnail.
+            </p>
             <p class="form-error" id="thumbError" hidden></p>
           </div>
         </div>
