@@ -1,0 +1,44 @@
+// ===============================
+// STORAGE SECURITY RULES
+// Deploy with: firebase deploy --only storage
+//
+// WHAT TO EDIT: nothing normally — matches the exact upload path used
+// by admin/js/post-editor.js: thumbnails/{postId}/image
+//
+// NOTE: firestore.exists() below lets Storage rules check Firestore's
+// admins/{uid} collection directly, so admin status is defined in ONE
+// place (Firestore) instead of duplicated logic in two rule files. This
+// requires the Storage rules "v2" cross-service permission, enabled by
+// default on modern Firebase projects. If your project predates this
+// and the rule fails to deploy, replace the isAdmin() body with a
+// simpler `request.auth != null` check and rely on Firestore rules +
+// UI restrictions instead.
+// ===============================
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+
+    // ---- THUMBNAILS ----
+    // Publicly readable (so posts/cards can display them). Only admins
+    // can upload/replace/delete, and only JPG/PNG/WEBP under 2MB.
+    match /thumbnails/{postId}/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+      allow delete: if isAdmin();
+    }
+
+    // ---- CATCH-ALL ----
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
