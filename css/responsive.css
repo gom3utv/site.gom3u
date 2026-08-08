@@ -1,0 +1,49 @@
+/* ===============================
+   RESPONSIVE OVERRIDES
+   Mobile styles are the default in style.css.
+   These media queries scale UP for tablet/desktop.
+=============================== */
+
+/* Hide mobile menu button + panel on larger screens; show inline nav instead is
+   intentionally NOT added per spec (§20/§42: admin login must not be prominent,
+   keep header uncluttered) — mobile menu pattern is kept at all sizes below. */
+
+/* ---- Tablet: 768px+ ---- */
+@media (min-width: 768px) {
+  .features { grid-template-columns: repeat(4, 1fr); }
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero h1 { font-size: 52px; }
+}
+
+/* ---- Small desktop: 1024px+ ---- */
+@media (min-width: 1024px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---- Desktop: 1366px+ ---- */
+@media (min-width: 1366px) {
+  .card-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ---- Mobile: below 768px ---- */
+@media (max-width: 767px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: var(--space-5);
+    text-align: left;
+  }
+  .hero-signal { align-self: center; margin-top: var(--space-4); }
+  .hero h1 { font-size: 32px; max-width: none; }
+  .features { grid-template-columns: repeat(2, 1fr); }
+  .footer-inner { flex-direction: column; }
+}
+
+/* ---- Very small phones: below 375px ---- */
+@media (max-width: 374px) {
+  .features { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 28px; }
+  .btn-lg { width: 100%; }
+}
+
+/* ---- Mobile menu / search bar are full-width by default; no extra rules needed ---- */
