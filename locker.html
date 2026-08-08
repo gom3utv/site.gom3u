@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Link — GoM3U</title>
+<meta name="description" content="Complete verification to unlock this playlist link on GoM3U." id="metaDescription">
+<meta name="robots" content="noindex, follow">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111122">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/locker.css">
+<link rel="icon" href="assets/icons/favicon.png">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ===============================
+     HEADER (same markup/behavior as index.html)
+=============================== -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner container">
+    <a href="index.html" class="logo" aria-label="GoM3U home">
+      Go<span class="logo-accent">M3U</span>
+    </a>
+    <div class="header-actions">
+      <button class="icon-btn menu-btn" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="mobile-menu" id="mobileMenu" hidden aria-label="Mobile menu">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#playlists">Playlists</a></li>
+    <li><a href="search.html">Search</a></li>
+    <li><a href="#" id="telegramLink" target="_blank" rel="noopener">Telegram</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<div class="notice-bar" id="noticeBar">
+  <div class="notice-track" id="noticeTrack">
+    <span>🔥 Latest GoM3U playlist updates are posted here — check back daily.</span>
+  </div>
+</div>
+
+<main id="main" class="locker-main container">
+
+  <!-- ===============================
+       SKELETON — shown while the post loads
+  =============================== -->
+  <div id="lockerSkeleton" class="locker-card">
+    <div class="skeleton" style="height:180px;border-radius:14px;margin-bottom:16px;"></div>
+    <div class="skeleton" style="height:24px;width:70%;margin-bottom:10px;"></div>
+    <div class="skeleton" style="height:16px;width:90%;margin-bottom:6px;"></div>
+    <div class="skeleton" style="height:16px;width:50%;"></div>
+  </div>
+
+  <!-- ===============================
+       ERROR STATE — invalid/missing/disabled post
+  =============================== -->
+  <div id="lockerError" class="locker-card" hidden>
+    <p class="error-title">⚠️ Playlist unavailable</p>
+    <p id="lockerErrorMessage">Sorry, this playlist is currently unavailable.</p>
+    <a href="index.html" class="btn btn-primary">Back to Home</a>
+  </div>
+
+  <!-- ===============================
+       MAIN LOCKER CONTENT — hidden until the post loads successfully
+  =============================== -->
+  <div id="lockerContent" class="locker-card" hidden>
+
+    <div class="thumb" id="lockerThumb">
+      <img id="lockerThumbImg" src="assets/default-thumbnail.png" alt="">
+    </div>
+
+    <span class="badge" id="lockerCategory">Category</span>
+    <h1 id="lockerTitle">Post title</h1>
+    <p class="locker-desc" id="lockerDesc"></p>
+    <p class="post-notice" id="postNotice" hidden></p>
+
+    <!-- ===============================
+         VERIFICATION STEPS
+         Client-side workflow only. Completing a step means the countdown
+         finished after the ad tab was opened — it does NOT prove the ad
+         was actually viewed. See js/locker.js for details.
+    =============================== -->
+    <div class="verify-steps">
+      <div class="verify-step" id="step1" data-state="pending">
+        <div class="step-info">
+          <span class="step-number">1</span>
+          <span class="step-label">Complete Verification</span>
+        </div>
+        <button class="btn btn-outline btn-sm" id="step1Btn">Open Verification</button>
+      </div>
+
+      <div class="verify-step" id="step2" data-state="locked">
+        <div class="step-info">
+          <span class="step-number">2</span>
+          <span class="step-label">Complete Verification</span>
+        </div>
+        <button class="btn btn-outline btn-sm" id="step2Btn" disabled>Open Verification</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-lg unlock-btn" id="unlockBtn" disabled>Unlock Link</button>
+
+    <!-- ===============================
+         REVEALED LINK — only rendered after Unlock is clicked
+    =============================== -->
+    <div class="unlocked-box" id="unlockedBox" hidden>
+      <p class="form-hint">Your link is ready:</p>
+      <div class="unlocked-link-row">
+        <input type="text" id="unlockedLinkInput" readonly>
+        <button class="btn btn-primary btn-sm" id="copyLinkBtn">Copy Link</button>
+      </div>
+      <a id="openLinkBtn" class="btn btn-outline" target="_blank" rel="noopener">Open Link</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="logo">Go<span class="logo-accent">M3U</span></span>
+      <p>Your playlist resource hub.</p>
+    </div>
+    <div class="footer-social">
+      <a href="#" target="_blank" rel="noopener">Telegram</a>
+      <a href="#" target="_blank" rel="noopener">Facebook</a>
+      <a href="#" target="_blank" rel="noopener">YouTube</a>
+    </div>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Use</a>
+    </div>
+  </div>
+  <p class="footer-copy">© 2026 GoM3U. All rights reserved.</p>
+</footer>
+
+<script src="js/utils.js"></script>
+<script src="js/app.js"></script>
+<script type="module" src="js/locker.js"></script>
+</body>
+</html>
