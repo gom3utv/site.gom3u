@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ===============================
+  SITEMAP.XML
+  WHAT TO EDIT: replace https://your-domain.example with your real
+  deployed domain in every <loc> below.
+  WHAT NOT TO EDIT INTO: individual playlist/locker pages aren't listed
+  here since they're dynamic and change often — search engines will
+  discover them by following "Get Link" links from the homepage instead.
+  If you want them indexed directly, consider generating this file from
+  Firestore during your deploy step.
+  ===============================
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://your-domain.example/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://your-domain.example/search.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
