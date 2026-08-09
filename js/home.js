@@ -49,14 +49,16 @@ async function loadPosts({ isFirstLoad }) {
 
   try {
     const postsRef = collection(db, "posts");
-    // NOTE: only ONE orderBy field is used here on purpose. Combining a
-    // where() filter with two orderBy() fields requires a manually-created
-    // Firestore "composite index" — without it, this query fails silently
-    // and no posts show up. Sorting by sortOrder alone avoids that trap.
+    // Sort by createdAt descending — newest posts first, matching the
+    // Admin Posts list and Search page. Only ONE orderBy field is used
+    // here on purpose: combining a where() filter with two orderBy()
+    // fields needs a manually-created Firestore "composite index", and
+    // this query already needs one composite index for
+    // (status, createdAt) — see the note in the Firebase setup guide.
     let q = query(
       postsRef,
       where("status", "==", "active"),
-      orderBy("sortOrder", "asc"),
+      orderBy("createdAt", "desc"),
       limit(POSTS_PER_PAGE)
     );
 
@@ -64,7 +66,7 @@ async function loadPosts({ isFirstLoad }) {
       q = query(
         postsRef,
         where("status", "==", "active"),
-        orderBy("sortOrder", "asc"),
+        orderBy("createdAt", "desc"),
         startAfter(lastVisibleDoc),
         limit(POSTS_PER_PAGE)
       );
