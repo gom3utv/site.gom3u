@@ -25,7 +25,11 @@ const DEFAULT_THUMBNAIL = "assets/default-thumbnail.png";
 const postId = getQueryParam("id");
 
 let post = null;
-let state = { step1: false, step2: false, unlocked: false, viewCounted: false, unlockCounted: false };
+let state = {
+  step1: false, step2: false, unlocked: false,
+  viewCounted: false, unlockCounted: false,
+  step1Started: false, step2Started: false
+};
 let countdownInterval = null;
 
 document.addEventListener("DOMContentLoaded", init);
@@ -134,10 +138,30 @@ function restoreStateUI() {
   // be started again in full. This keeps the gate meaningful — silently
   // finishing a countdown on the locker page itself, without the ad tab
   // ever being open, would defeat the point of the step.
+  warnIfStepWasInterrupted(1);
+  warnIfStepWasInterrupted(2);
+
   if (state.step1) setStepDone(1);
   if (state.step2) setStepDone(2);
   if (state.step1 && state.step2) enableUnlock();
   if (state.unlocked) revealLink();
+}
+
+/**
+ * If a step was started (ad tab opened) but the page reloaded before it
+ * was marked complete, tell the person why their progress reset instead
+ * of silently reverting the button — matches the clear "you skipped
+ * before N seconds" pattern from other link lockers.
+ */
+function warnIfStepWasInterrupted(stepNumber) {
+  const started = state[`step${stepNumber}Started`];
+  const done = state[`step${stepNumber}`];
+  if (started && !done) {
+    const duration = Number(post.verifyTime) || 20;
+    window.alert(`আপনি ${duration} সেকেন্ড হওয়ার আগেই বিজ্ঞাপনটি বন্ধ করে দিয়েছেন! পুনরায় চেষ্টা করুন।`);
+  }
+  state[`step${stepNumber}Started`] = false;
+  saveState(postId, state);
 }
 
 function startStep(stepNumber) {
@@ -145,6 +169,9 @@ function startStep(stepNumber) {
   const duration = Number(post.verifyTime) || 20;
   const btn = document.getElementById(`step${stepNumber}Btn`);
   const stepEl = document.getElementById(`step${stepNumber}`);
+
+  state[`step${stepNumber}Started`] = true;
+  saveState(postId, state);
 
   window.open(adUrl, "_blank", "noopener");
 
@@ -281,4 +308,4 @@ function saveState(id, value) {
     // sessionStorage unavailable (private browsing etc.) — degrade silently,
     // duplicate protection just won't persist across a refresh.
   }
-}
+      }
