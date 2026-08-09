@@ -28,6 +28,23 @@ async function loadSiteSettings() {
 function applySettings(s) {
   applyNotice(s);
   applySocialLinks(s);
+  applyHero(s);
+}
+
+/**
+ * Overwrites the homepage hero heading/subtitle with the admin-set text,
+ * if provided. Only present on index.html (the elements simply won't
+ * exist on other pages, so this is a safe no-op there). Replacing the
+ * heading's textContent does drop the built-in two-line-break/accent-
+ * color styling in favor of the admin's plain text — a deliberate
+ * trade-off so any custom title works, not just ones matching the
+ * original markup's exact shape.
+ */
+function applyHero(s) {
+  const titleEl = document.getElementById("heroTitle");
+  const subEl = document.getElementById("heroSubtitle");
+  if (titleEl && s.heroTitle) titleEl.textContent = s.heroTitle;
+  if (subEl && s.heroSubtitle) subEl.textContent = s.heroSubtitle;
 }
 
 function applyNotice(s) {
