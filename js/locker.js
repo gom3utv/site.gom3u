@@ -31,6 +31,10 @@ let state = {
   step1Started: false, step2Started: false
 };
 let countdownInterval = null;
+// Tracks when the currently in-progress step was started, in memory only
+// (not persisted) — used by the visibilitychange listener below to detect
+// an early return to this tab without waiting for a full page reload.
+let activeStepStart = {};
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -128,6 +132,47 @@ function wireSteps() {
   document.getElementById("step2Btn").addEventListener("click", () => startStep(2));
   document.getElementById("unlockBtn").addEventListener("click", handleUnlock);
   document.getElementById("copyLinkBtn").addEventListener("click", copyLink);
+
+  // Detects an early return to this tab (switching back from the ad tab,
+  // or the ad tab being closed) WITHOUT waiting for a page reload —
+  // fires the moment this tab becomes visible again, not just on load.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    [1, 2].forEach((n) => {
+      const startedAt = activeStepStart[n];
+      if (!startedAt) return; // this step isn't currently in progress
+      const duration = Number(post.verifyTime) || 20;
+      const elapsed = (Date.now() - startedAt) / 1000;
+      if (elapsed < duration) {
+        resetStepEarly(n);
+      }
+    });
+  });
+}
+
+/**
+ * Immediately resets a step to "Open Verification" and warns the person
+ * they came back before the required time — triggered by the tab
+ * becoming visible again too early (see the visibilitychange listener
+ * in wireSteps above).
+ */
+function resetStepEarly(stepNumber) {
+  if (state[`step${stepNumber}`]) return; // already completed — nothing to reset
+
+  clearInterval(countdownInterval);
+  delete activeStepStart[stepNumber];
+  state[`step${stepNumber}Started`] = false;
+  saveState(postId, state);
+
+  const duration = Number(post.verifyTime) || 20;
+  window.alert(`আপনি ${duration} সেকেন্ড হওয়ার আগেই বিজ্ঞাপনটি বন্ধ করে দিয়েছেন! পুনরায় চেষ্টা করুন।`);
+
+  const btn = document.getElementById(`step${stepNumber}Btn`);
+  const stepEl = document.getElementById(`step${stepNumber}`);
+  const locked = stepNumber === 2 && !state.step1;
+  btn.disabled = locked;
+  btn.textContent = "Open Verification";
+  stepEl.dataset.state = locked ? "locked" : "pending";
 }
 
 function restoreStateUI() {
@@ -172,6 +217,7 @@ function startStep(stepNumber) {
 
   state[`step${stepNumber}Started`] = true;
   saveState(postId, state);
+  activeStepStart[stepNumber] = Date.now();
 
   window.open(adUrl, "_blank", "noopener");
 
@@ -199,6 +245,7 @@ function completeStep(stepNumber) {
   setStepDone(stepNumber);
   state[`step${stepNumber}`] = true;
   saveState(postId, state);
+  delete activeStepStart[stepNumber];
 
   if (stepNumber === 1) {
     const step2Btn = document.getElementById("step2Btn");
@@ -308,4 +355,4 @@ function saveState(id, value) {
     // sessionStorage unavailable (private browsing etc.) — degrade silently,
     // duplicate protection just won't persist across a refresh.
   }
-      }
+    }
